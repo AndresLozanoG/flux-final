@@ -17,16 +17,18 @@ pipe = None
 def load_model():
     global pipe
     if pipe is None:
-        print("Cargando modelo FLUX en la GPU...")
-        # Cargamos el modelo con bfloat16 para optimizar VRAM
+        print("Cargando modelo con optimización de memoria...")
         pipe = FluxPipeline.from_pretrained(
             "black-forest-labs/FLUX.1-dev", 
             torch_dtype=torch.bfloat16
-        ).to("cuda")
+        ) # Quitamos el .to("cuda") de aquí
         
-        # SOLUCIÓN AL ERROR DE ATENCIÓN: Forzar el procesador estándar
+        # FIX DE MEMORIA: Mueve partes del modelo entre CPU y GPU automáticamente
+        pipe.enable_model_cpu_offload() 
+        
+        # FIX DE ATENCIÓN: (El que ya teníamos)
         pipe.transformer.set_default_attn_processor()
-        print("Modelo cargado exitosamente.")
+        print("Modelo cargado con éxito usando CPU Offloading.")
 
 def handler(job):
     job_input = job["input"]
