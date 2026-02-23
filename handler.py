@@ -1,7 +1,6 @@
 import runpod
 import torch
 from diffusers import FluxPipeline
-from diffusers.models.attention_processor import AttnProcessor2_0
 import base64
 import os
 from huggingface_hub import login
@@ -17,22 +16,18 @@ pipe = None
 def load_model():
     global pipe
     if pipe is None:
-        print("Cargando modelo FLUX...")
+        print("Cargando modelo FLUX nativo...")
         pipe = FluxPipeline.from_pretrained(
             "black-forest-labs/FLUX.1-dev", 
             torch_dtype=torch.bfloat16
         )
-        
-        # EL FIX MAESTRO: Forzamos el procesador de atención 2.0 manualmente
-        # Esto reemplaza a 'set_default_attn_processor' y evita el error de 'enable_gqa'
-        pipe.transformer.set_attn_processor(AttnProcessor2_0())
-        
+        # ESTO ES LO ÚNICO QUE NECESITAMOS:
         pipe.enable_model_cpu_offload() 
         print("Modelo cargado con éxito.")
 
 def handler(job):
     job_input = job["input"]
-    prompt = job_input.get("prompt", "A futuristic city")
+    prompt = job_input.get("prompt", "A professional photo of a futuristic astronaut, 8k")
     load_model()
     with torch.inference_mode():
         output = pipe(
