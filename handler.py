@@ -6,7 +6,7 @@ import os
 from huggingface_hub import login
 from io import BytesIO
 
-# Autenticación
+
 hf_token = os.getenv("HF_TOKEN")
 if hf_token:
     login(token=hf_token)
@@ -21,7 +21,7 @@ def load_model():
             "black-forest-labs/FLUX.1-dev", 
             torch_dtype=torch.bfloat16
         )
-        # ESTO ES LO ÚNICO QUE NECESITAMOS:
+        
         pipe.enable_model_cpu_offload() 
         print("Modelo cargado con éxito.")
 
